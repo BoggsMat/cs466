@@ -58,10 +58,10 @@ void subtractVectors(double vec[n], double vec2[n], double result[n])
 		result[i] = vec[i] - vec2[i]; 
 	}
 
-void multiVector(double vec[n], double temp[n], double val)
+void multiVector(double vec[n], double result[n], double val)
 	{
 	for (int i = 0; i < n; ++i)
-		temp[i] = vec[i] * val; 
+		result[i] = vec[i] * val; 
 	}
 
 void divideVector(double vec[n], double val)
@@ -140,9 +140,54 @@ double fnorm(double A[n][n])
 	return sqrt(r);
 	}
 
+void multiMatrix(double A[n][n], double B[n][n], double result[n][n])
+	{
+	double temp = 0.0; 
+
+	for (int k = 0; k < n; ++k)
+		{
+		for (int i = 0; i < n; ++i)
+			{
+			for (int j = 0; j < n; ++j)
+				{
+				temp += A[k][j]*B[j][i];
+				}
+			result[i][k] = temp; 
+			temp = 0.0; 
+			}
+		}
+	}
+
+void subtractMatrix(double A[n][n], double B[n][n], double result[n][n])
+	{
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < n; ++j)
+			result[i][j] = A[i][j] - B[i][j]; 
+	}
+
+void AtA(double B[n][n], double A[n][n])
+	{
+	bzero(B,sizeof(double)*n*n);
+    for(int k=0;k<n;k++)
+        for(int i=0;i<n;i++)
+        	{
+            for(int j=0;j<n;j++)
+            	{    
+                B[i][j] += A[k][i]*A[k][j];
+            	} 
+            }
+	}
+
 int main()
 	{
-	double Q[n][n], R[n][n], H[n][n], T[n][n]; 
+	double Q[n][n], R[n][n], H[n][n], T[n][n], A[n][n], I[n][n]; 
+
+	// Create Identity 
+	for (int i = 0; i < n; ++i)
+		for(int j = 0; j < n; ++j)
+			i == j ? I[i][j] = 1 : I[i][j] = 0; 
+
+	printMatrix(I);
 
 	// Create Hilbert Matrix 
 	hilbert(H); 
@@ -158,6 +203,22 @@ int main()
 
 	cout << endl << "R:" << endl; 
 	printMatrix(R); 
+
+	// ||H-QR||
+	cout << endl << "||H - QR|| " << endl; 
+	multiMatrix(Q,R,A);
+	subtractMatrix(H,A,T);
+	cout << fnorm(T) << endl; 
+
+	// ||QtQ - I||
+	cout << endl << "||QtQ - I||" << endl; 
+	AtA(T, Q); 
+	subtractMatrix(T, I, A); 
+	cout << fnorm(A) << endl; 
+
+	// ||QQt - I||
+	cout << endl << "||QQt - I||" << endl; 
+	
 
 	return 0;
 	}
