@@ -3,16 +3,7 @@
 
 using namespace std; 
 
-#define n 4
-
-void printCol(double vec[n])
-	{
-	for (int i = 0; i < n; ++i)
-		{
-		cout << vec[i] << ' '; 	
-		}
-	cout << endl; 
-	}
+#define n 6
 
 void printMatrix(double A[n][n])
 	{
@@ -122,13 +113,6 @@ void gramSchmidt(double A[n][n], double Q[n][n], double R[n][n])
 
 	}
 
-void hilbert(double H[n][n])
-	{
-	for (int i = 1; i <= n; i++)
-		for (int j = 1; j <= n; j++)
-			H[i-1][j-1] = 1.0/(i+j-1.0); 
-	}
-
 double fnorm(double A[n][n])
 	{
 	double r=0.0;
@@ -170,12 +154,17 @@ void AtA(double B[n][n], double A[n][n])
 	bzero(B,sizeof(double)*n*n);
     for(int k=0;k<n;k++)
         for(int i=0;i<n;i++)
-        	{
-            for(int j=0;j<n;j++)
-            	{    
+            for(int j=0;j<n;j++) 
                 B[i][j] += A[k][i]*A[k][j];
-            	} 
-            }
+	}
+
+void AAt(double B[n][n], double A[n][n])
+	{
+	bzero(B,sizeof(double)*n*n);
+    for(int k=0;k<n;k++)
+        for(int i=0;i<n;i++)
+            for(int j=0;j<n;j++) 
+                B[k][i] += A[k][j]*A[i][j];
 	}
 
 int main()
@@ -187,10 +176,10 @@ int main()
 		for(int j = 0; j < n; ++j)
 			i == j ? I[i][j] = 1 : I[i][j] = 0; 
 
-	printMatrix(I);
-
 	// Create Hilbert Matrix 
-	hilbert(H); 
+	for (int i = 1; i <= n; i++)
+		for (int j = 1; j <= n; j++)
+			H[i-1][j-1] = 1.0/(i+j-1.0); 
 
 	// Calculate the QR factorization 
 	gramSchmidt(H, Q, R); 
@@ -218,7 +207,10 @@ int main()
 
 	// ||QQt - I||
 	cout << endl << "||QQt - I||" << endl; 
-	
+	AAt(T, Q); 
+	subtractMatrix(T, I, A); 
+	cout << fnorm(A) << endl; 
+
 
 	return 0;
 	}
